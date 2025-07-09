@@ -41,18 +41,28 @@
 
         <!-- Listado de libros -->
         <div class="md:w-3/4">
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
                 @forelse($libros as $libro)
-                    <div class="bg-white rounded-lg shadow p-4 flex flex-col items-center">
-                        <img src="{{ $libro->imagen ? asset($libro->imagen) : asset('images/default-book.png') }}" alt="{{ $libro->titulo }}" class="w-24 h-36 object-cover mb-2 rounded">
-                        <div class="font-semibold text-center">{{ $libro->titulo }}</div>
-                        <div class="text-sm text-gray-500">{{ $libro->autor->nombre ?? '' }}</div>
-                        <div class="text-yellow-400 font-bold">{{ number_format($libro->valoracion, 1) }} ★</div>
-                        <div class="text-blue-700 font-bold mt-1">S/ {{ number_format($libro->precio, 2) }}</div>
-                        <a href="#" class="mt-2 text-blue-600 hover:underline text-sm">Ver más</a>
+                    <div class="bg-white rounded-xl shadow flex flex-col items-center p-3 relative group transition-all duration-200 hover:shadow-xl hover:ring-2 hover:ring-[#EAA451]">
+                        <a href="{{ route('libro.detalle', $libro->id) }}" class="block w-full flex justify-center mb-2">
+                            <img src="{{ $libro->imagen ? asset($libro->imagen) : asset('images/default-book.png') }}" alt="{{ $libro->titulo }}" class="w-32 h-48 object-cover rounded-lg shadow transition-transform duration-200 group-hover:scale-105">
+                        </a>
+                        <div class="flex-1 w-full flex flex-col items-center justify-between">
+                            <div class="font-semibold text-center text-[#16183E] line-clamp-2 min-h-[48px]">{{ $libro->titulo }}</div>
+                            <div class="text-sm text-gray-500 mb-1">{{ $libro->autor->nombre ?? '' }}</div>
+                            <div class="text-blue-900 font-bold text-lg mb-2">S/ {{ number_format($libro->precio, 2) }}</div>
+                        </div>
+                        <form method="POST" action="{{ route('carrito.agregar', $libro->id) }}" class="absolute bottom-3 right-3">
+                            @csrf
+                            <input type="hidden" name="libro_id" value="{{ $libro->id }}">
+                            <input type="hidden" name="cantidad" value="1">
+                            <button type="submit" class="w-10 h-10 flex items-center justify-center rounded-full bg-white shadow border border-gray-200 hover:bg-[#EAA451] hover:border-[#EAA451] transition">
+                                <img src="{{ asset('icons/carrito.svg') }}" alt="Agregar al carrito" class="w-6 h-6">
+                            </button>
+                        </form>
                     </div>
                 @empty
-                    <div class="col-span-2 md:col-span-3 text-center text-gray-500">No se encontraron libros con los filtros seleccionados.</div>
+                    <div class="col-span-2 md:col-span-4 text-center text-gray-500">No se encontraron libros con los filtros seleccionados.</div>
                 @endforelse
             </div>
             <div class="mt-6">

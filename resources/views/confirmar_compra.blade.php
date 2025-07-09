@@ -24,8 +24,9 @@
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
             <!-- Columna izquierda: Información editable -->
-            <form id="formPedido" action="{{ route('carrito.procesar') }}" method="POST" class="bg-white rounded-lg shadow p-8 flex flex-col gap-8">
+            <form id="formPedido" action="{{ route('pedido.procesar') }}" method="POST" class="bg-white rounded-lg shadow p-8 flex flex-col gap-8">
                 @csrf
+                <input type="hidden" name="metodo_pago" id="inputMetodoPago" value="">
                 <div>
                     <h2 class="text-xl font-bold mb-4 text-[#0A2342]">Información del pedido</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -59,7 +60,6 @@
                         <div class="flex items-center gap-2">Dirección <span class="font-semibold ml-2" id="entregaDireccion">{{ old('direccion_completa') }}</span></div>
                         <div class="flex items-center gap-2">Número de teléfono <span class="font-semibold ml-2" id="entregaTelefono">{{ old('telefono', Auth::user()->telefono ?? '') }}</span></div>
                     </div>
-                    <button type="button" onclick="actualizarEntrega()" class="mt-4 bg-[#EAA451] hover:bg-orange-500 text-white font-semibold px-6 py-2 rounded shadow flex items-center gap-2 w-max">Actualizar información</button>
                 </div>
             </form>
             <!-- Columna derecha: Resumen y métodos de pago -->
@@ -78,64 +78,174 @@
                 </div>
                 <div class="bg-white rounded-lg shadow p-8 mb-4">
                     <h2 class="text-xl font-bold mb-4 text-[#0A2342]">Métodos de Pago</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                        <div class="border-2 border-[#EAA451] rounded-lg p-4 flex flex-col items-center cursor-pointer bg-[#FFF5E9]">
-                            <!-- SVG transferencia -->
-                            <span class="font-semibold mt-2">Transferencia Bancaria</span>
-                        </div>
-                        <div class="border-2 border-[#EAA451] rounded-lg p-4 flex flex-col items-center cursor-pointer bg-[#FFF5E9]">
-                            <!-- SVG tarjeta -->
-                            <span class="font-semibold mt-2">Tarjeta de crédito</span>
-                        </div>
-                        <div class="border-2 border-[#EAA451] rounded-lg p-4 flex flex-col items-center cursor-pointer bg-[#FFF5E9]">
-                            <!-- SVG yape -->
-                            <span class="font-semibold mt-2">Yape</span>
-                        </div>
-                    </div>
-                    <!-- Formulario de tarjeta (solo visual) -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="md:col-span-3">
-                            <label class="block text-sm font-medium mb-1">Titular</label>
-                            <input type="text" name="titular" class="w-full border rounded px-3 py-2">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium mb-1">Número de tarjeta</label>
-                            <input type="text" name="numero_tarjeta" class="w-full border rounded px-3 py-2" placeholder="0000 - 0000 - 0000 - 0000">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium mb-1">CVV</label>
-                            <input type="text" name="cvv" class="w-full border rounded px-3 py-2" placeholder="123">
-                        </div>
-                        <div class="flex gap-2">
-                            <div>
-                                <label class="block text-sm font-medium mb-1">Mes</label>
-                                <input type="text" name="mes" class="w-full border rounded px-3 py-2" placeholder="MM">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium mb-1">Año</label>
-                                <input type="text" name="ano" class="w-full border rounded px-3 py-2" placeholder="AAAA">
-                            </div>
-                        </div>
-                    </div>
-                    <form action="{{ route('pago.mercadopago') }}" method="POST">
-                        @csrf
-                        <input type="hidden" name="monto" value="{{ $total + 15 - ($descuento ?? 0) }}">
-                        <button type="submit" class="w-full bg-[#00B1EA] hover:bg-[#0097CE] text-white font-bold py-3 rounded-lg text-lg transition mt-4 flex items-center justify-center gap-2">
-                            <img src="{{ asset('icons/mercadopago.svg') }}" alt="MercadoPago" class="w-6 h-6"> Pagar con MercadoPago
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6" id="metodosPagoBtns">
+                        <button type="button" onclick="seleccionarMetodoPago('transferencia')" class="metodo-pago-btn border-2 border-[#EAA451] rounded-lg p-4 flex flex-col items-center cursor-pointer bg-white w-full relative" disabled>
+                            <img src="{{ asset('icons/transfer.svg') }}" alt="Transferencia" class="h-10 mb-2">
+                            <span class="font-semibold mt-2 text-[#0A2342]">Transferencia Bancaria</span>
                         </button>
-                    </form>
+                        <button type="button" onclick="seleccionarMetodoPago('tarjeta')" class="metodo-pago-btn border-2 border-[#EAA451] rounded-lg p-4 flex flex-col items-center cursor-pointer bg-white w-full relative" disabled>
+                            <img src="{{ asset('icons/atm.svg') }}" alt="Tarjeta" class="h-10 mb-2">
+                            <span class="font-semibold mt-2 text-[#0A2342]">Tarjeta de crédito</span>
+                        </button>
+                        <button type="button" onclick="seleccionarMetodoPago('yape')" class="metodo-pago-btn border-2 border-[#EAA451] rounded-lg p-4 flex flex-col items-center cursor-pointer bg-white w-full relative" disabled>
+                            <img src="{{ asset('icons/yapelogo.svg') }}" alt="Yape" class="h-10 mb-2">
+                            <span class="font-semibold mt-2 text-[#0A2342]">Yape</span>
+                        </button>
+                    </div>
                 </div>
                 <div class="flex flex-col md:flex-row gap-4 mt-8">
                     <button type="button" onclick="window.location='{{ route('carrito.index') }}'" class="bg-[#EAA451] hover:bg-orange-500 text-white font-semibold px-6 py-2 rounded shadow flex items-center gap-2 w-max">Volver al carrito</button>
-                    <button type="submit" form="formPedido" class="w-full bg-[#0A2342] hover:bg-[#EAA451] text-white font-bold py-3 rounded-lg text-lg transition">CONFIRMAR COMPRA</button>
+                    <button type="submit" form="formPedido" id="btnConfirmarCompra" class="w-full bg-[#0A2342] hover:bg-[#EAA451] text-white font-bold py-3 rounded-lg text-lg transition">CONFIRMAR COMPRA</button>
                 </div>
             </div>
         </div>
     </div>
 </div>
-@endsection
 
-@push('scripts')
+<!-- Modal Transferencia Bancaria -->
+<div id="modalTransferencia" class="modal-pago hidden">
+    <div class="modal-bg" onclick="cerrarModal('modalTransferencia')"></div>
+    <div class="modal-content">
+        <h3 class="text-lg font-bold mb-4">Transferencia Bancaria</h3>
+        <form id="formTransferencia" onsubmit="return simularPago('modalTransferencia')">
+            <div class="mb-2">
+                <label class="block text-sm font-medium mb-1">Banco de destino</label>
+                <select id="bancoSelect" required class="w-full border rounded px-3 py-2">
+                    <option value="">Seleccione un banco o caja</option>
+                    <option>BCP (Banco de Crédito del Perú)</option>
+                    <option>BBVA</option>
+                    <option>Interbank</option>
+                    <option>Scotiabank</option>
+                    <option>BanBif</option>
+                    <option>Banco Pichincha</option>
+                    <option>Banco GNB</option>
+                    <option>Banco Ripley</option>
+                    <option>Banco Falabella</option>
+                    <option>MiBanco</option>
+                    <option>Banco de la Nación</option>
+                    <option>Caja Arequipa</option>
+                    <option>Caja Piura</option>
+                    <option>Caja Huancayo</option>
+                    <option>Caja Sullana</option>
+                    <option>Caja Trujillo</option>
+                    <option>Caja Cusco</option>
+                    <option>Caja Ica</option>
+                    <option>Caja Tacna</option>
+                    <option>Caja Metropolitana</option>
+                    <option>Caja Los Andes</option>
+                    <option>Caja Raíz</option>
+                    <option>Caja Rural Los Andes</option>
+                    <option>Caja Rural Prymera</option>
+                    <option>Caja Rural Del Centro</option>
+                    <option>Caja Rural Señor de Luren</option>
+                    <option>Caja Rural Credinka</option>
+                    <option>Caja Rural Profinanzas</option>
+                    <option>Caja Rural Sipán</option>
+                </select>
+            </div>
+            <div class="mb-2">
+                <label class="block text-sm font-medium mb-1">Número de operación</label>
+                <input type="text" required class="w-full border rounded px-3 py-2" placeholder="N° de operación">
+            </div>
+            <div class="mb-2">
+                <label class="block text-sm font-medium mb-1">Monto transferido</label>
+                <input type="text" value="S/ {{ number_format($total + 15 - ($descuento ?? 0), 2) }}" readonly class="w-full border rounded px-3 py-2 bg-gray-100 cursor-not-allowed" placeholder="S/ {{ number_format($total + 15 - ($descuento ?? 0), 2) }}">
+            </div>
+            <button type="submit" class="bg-[#EAA451] text-white px-4 py-2 rounded font-semibold w-full mt-2">Confirmar transferencia</button>
+        </form>
+        <div class="hidden mt-4 text-center" id="cargandoTransferencia">
+            <div class="loader mb-2"></div>
+            <span>Procesando pago...</span>
+        </div>
+        <div class="hidden mt-4 text-center text-green-600 font-bold" id="exitoTransferencia">
+            ¡Pago realizado con éxito!
+        </div>
+    </div>
+</div>
+
+<!-- Modal Tarjeta de Crédito -->
+<div id="modalTarjeta" class="modal-pago hidden">
+    <div class="modal-bg" onclick="cerrarModal('modalTarjeta')"></div>
+    <div class="modal-content max-w-md relative">
+        <h3 class="text-lg font-bold mb-4">Tarjeta de crédito o débito</h3>
+        <div class="absolute right-6 top-6 flex gap-2">
+            <img src="{{ asset('icons/visa.svg') }}" alt="Visa" class="h-6">
+            <img src="{{ asset('icons/diners-club.svg') }}" alt="Diners Club" class="h-6">
+            <img src="{{ asset('icons/mastercard.svg') }}" alt="Mastercard" class="h-6">
+            <img src="{{ asset('icons/american-express.svg') }}" alt="American Express" class="h-6">
+        </div>
+        <form id="formTarjeta" onsubmit="return validarTarjetaYEnviar()">
+            <div class="mb-2">
+                <label class="block text-sm font-medium mb-1">Número de tarjeta</label>
+                <input type="text" id="numeroTarjeta" required maxlength="19" class="w-full border rounded px-3 py-2" placeholder="XXXX XXXX XXXX XXXX">
+            </div>
+            <div class="flex gap-2 mb-2">
+                <div class="flex-1">
+                    <label class="block text-sm font-medium mb-1">Vencimiento</label>
+                    <input type="text" id="vencimientoTarjeta" required maxlength="5" class="w-full border rounded px-3 py-2" placeholder="MM/AA">
+                </div>
+                <div class="flex-1">
+                    <label class="block text-sm font-medium mb-1">Código de seguridad</label>
+                    <input type="text" id="cvvTarjeta" required maxlength="4" class="w-full border rounded px-3 py-2" placeholder="Ej.: 123">
+                </div>
+            </div>
+            <div class="mb-2">
+                <label class="block text-sm font-medium mb-1">Nombre del titular</label>
+                <input type="text" id="nombreTitularTarjeta" required class="w-full border rounded px-3 py-2" placeholder="Nombre del titular">
+            </div>
+            <div class="mb-2">
+                <label class="block text-sm font-medium mb-1">Documento del titular</label>
+                <input type="text" id="documentoTitularTarjeta" required class="w-full border rounded px-3 py-2" placeholder="Documento de identidad">
+            </div>
+            <div class="mb-2">
+                <label class="block text-sm font-medium mb-1">Correo electrónico</label>
+                <input type="email" id="emailTarjeta" required class="w-full border rounded px-3 py-2" placeholder="ejemplo@email.com">
+                <span id="errorEmailTarjeta" class="text-red-600 text-xs hidden">El correo debe terminar en .com</span>
+            </div>
+            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded font-semibold w-full mt-2">
+                Pagar S/ {{ number_format($total + 15 - ($descuento ?? 0), 2) }}
+            </button>
+        </form>
+        <div class="hidden mt-4 text-center" id="cargandoTarjeta">
+            <div class="loader mb-2"></div>
+            <span>Procesando pago...</span>
+        </div>
+        <div class="hidden mt-4 text-center text-green-600 font-bold" id="exitoTarjeta">
+            ¡Pago realizado con éxito!
+        </div>
+    </div>
+</div>
+
+<!-- Modal Yape -->
+<div id="modalYape" class="modal-pago hidden">
+    <div class="modal-bg" onclick="cerrarModal('modalYape')"></div>
+    <div class="modal-content max-w-xs flex flex-col items-center">
+        <img src="{{ asset('images/yape1.png') }}" alt="Yape QR" class="w-100 h-600 object-contain mb-4">
+        <span class="text-lg text-center efont-bold mb-2">Escanea el código QR con Yape</span>
+        <div class="hidden mt-4 text-center" id="cargandoYape">
+            <div class="loader mb-2"></div>
+            <span>Procesando pago...</span>
+        </div>
+        <div class="hidden mt-4 text-center text-green-600 font-bold" id="exitoYape">
+            ¡Pago realizado con éxito!
+        </div>
+    </div>
+</div>
+
+<!-- Estilos y lógica de modales y loader -->
+<style>
+.modal-pago { position: fixed; z-index: 50; left: 0; top: 0; width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; }
+.modal-pago.hidden { display: none !important; }
+.modal-bg { position: absolute; width: 100vw; height: 100vh; background: rgba(0,0,0,0.4); top: 0; left: 0; }
+.modal-content { position: relative; background: #fff; border-radius: 12px; padding: 2rem; box-shadow: 0 8px 32px rgba(0,0,0,0.18); z-index: 10; }
+.loader { border: 4px solid #f3f3f3; border-top: 4px solid #EAA451; border-radius: 50%; width: 36px; height: 36px; animation: spin 1s linear infinite; margin: 0 auto; }
+@keyframes spin { 100% { transform: rotate(360deg); } }
+.metodo-pago-btn.selected {
+    background: #FFF0DF !important;
+    border-color: #EAA451 !important;
+    position: relative;
+}
+</style>
 <script>
 function actualizarEntrega() {
     document.getElementById('entregaNombre').textContent = document.getElementById('inputNombre').value;
@@ -156,5 +266,232 @@ function actualizarEntrega() {
 }
 // Actualizar automáticamente al cargar por si hay valores precargados
 window.addEventListener('DOMContentLoaded', actualizarEntrega);
+document.getElementById('inputNombre').addEventListener('input', actualizarEntrega);
+document.getElementById('inputFecha').addEventListener('input', actualizarEntrega);
+document.getElementById('inputDireccion').addEventListener('input', actualizarEntrega);
+document.getElementById('inputTelefono').addEventListener('input', actualizarEntrega);
+
+function abrirModal(id) {
+    document.getElementById(id).classList.remove('hidden');
+}
+function cerrarModal(id) {
+    document.getElementById(id).classList.add('hidden');
+    // Resetear formularios y estados
+    if(id === 'modalTransferencia') {
+        document.getElementById('formTransferencia').reset();
+        document.getElementById('cargandoTransferencia').classList.add('hidden');
+        document.getElementById('exitoTransferencia').classList.add('hidden');
+    }
+    if(id === 'modalTarjeta') {
+        document.getElementById('formTarjeta').reset();
+        document.getElementById('cargandoTarjeta').classList.add('hidden');
+        document.getElementById('exitoTarjeta').classList.add('hidden');
+    }
+    if(id === 'modalYape') {
+        document.getElementById('cargandoYape').classList.add('hidden');
+        document.getElementById('exitoYape').classList.add('hidden');
+    }
+}
+let metodoSeleccionado = null;
+function seleccionarMetodoPago(metodo) {
+    if(document.querySelector('.metodo-pago-btn[disabled]')) return; // No permitir si ya se pagó
+    const botones = document.querySelectorAll('.metodo-pago-btn');
+    botones.forEach((btn, idx) => {
+        btn.classList.remove('selected');
+    });
+    let idx = 0;
+    if(metodo === 'transferencia') idx = 0;
+    if(metodo === 'tarjeta') idx = 1;
+    if(metodo === 'yape') idx = 2;
+    const btn = botones[idx];
+    btn.classList.add('selected');
+    metodoSeleccionado = metodo;
+    document.getElementById('inputMetodoPago').value = metodo;
+    // Habilitar el botón de confirmar compra
+    document.getElementById('btnConfirmarCompra').disabled = false;
+    // Abrir el modal correspondiente
+    if(metodo === 'transferencia') abrirModal('modalTransferencia');
+    if(metodo === 'tarjeta') abrirModal('modalTarjeta');
+    if(metodo === 'yape') abrirModal('modalYape');
+}
+// Simulación automática para Yape
+let yapeTimer = null;
+document.getElementById('modalYape').addEventListener('click', function(e) {
+    if(e.target.classList.contains('modal-bg')) return;
+    if(!document.getElementById('cargandoYape').classList.contains('hidden')) return;
+    document.getElementById('cargandoYape').classList.remove('hidden');
+    yapeTimer = setTimeout(function() {
+        document.getElementById('cargandoYape').classList.add('hidden');
+        document.getElementById('exitoYape').classList.remove('hidden');
+        setTimeout(function() {
+            cerrarModal('modalYape');
+            deshabilitarMetodosPago();
+        }, 1500);
+    }, 2000);
+});
+
+// Mejoras para el modal de tarjeta
+const inputNumeroTarjeta = document.getElementById('numeroTarjeta');
+const inputVencimiento = document.getElementById('vencimientoTarjeta');
+const inputCVV = document.getElementById('cvvTarjeta');
+const inputNombre = document.getElementById('nombreTitularTarjeta');
+const inputDocumento = document.getElementById('documentoTitularTarjeta');
+const inputEmailTarjeta = document.getElementById('emailTarjeta');
+const errorEmailTarjeta = document.getElementById('errorEmailTarjeta');
+
+if(inputNumeroTarjeta) {
+    inputNumeroTarjeta.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        value = value.substring(0, 16);
+        let formatted = '';
+        for(let i = 0; i < value.length; i += 4) {
+            if(i > 0) formatted += ' ';
+            formatted += value.substring(i, i+4);
+        }
+        e.target.value = formatted;
+    });
+}
+if(inputVencimiento) {
+    inputVencimiento.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if(value.length > 4) value = value.substring(0,4);
+        // Validar mes
+        if(value.length >= 2) {
+            let mes = parseInt(value.substring(0,2));
+            if(mes > 12) mes = 12;
+            if(mes < 1 && value.length >= 2) mes = '01';
+            value = mes.toString().padStart(2,'0') + value.substring(2,4);
+        }
+        if(value.length > 2) {
+            value = value.substring(0,2) + '/' + value.substring(2,4);
+        }
+        e.target.value = value;
+    });
+}
+if(inputCVV) {
+    inputCVV.addEventListener('input', function(e) {
+        e.target.value = e.target.value.replace(/\D/g, '').substring(0,4);
+    });
+}
+if(inputNombre) {
+    inputNombre.addEventListener('input', function(e) {
+        e.target.value = e.target.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ ]/g, '');
+    });
+}
+if(inputDocumento) {
+    inputDocumento.addEventListener('input', function(e) {
+        e.target.value = e.target.value.replace(/\D/g, '');
+    });
+}
+
+function validarTarjetaYEnviar() {
+    // Validar email termine en .com
+    if(inputEmailTarjeta && !inputEmailTarjeta.value.trim().endsWith('.com')) {
+        errorEmailTarjeta.classList.remove('hidden');
+        inputEmailTarjeta.focus();
+        return false;
+    } else if(errorEmailTarjeta) {
+        errorEmailTarjeta.classList.add('hidden');
+    }
+    return simularPago('modalTarjeta');
+}
+
+function filtrarBancos() {
+    const filtro = document.getElementById('bancoFiltro').value.toLowerCase();
+    const select = document.getElementById('bancoSelect');
+    for (let i = 0; i < select.options.length; i++) {
+        const texto = select.options[i].text.toLowerCase();
+        if (i === 0 || texto.includes(filtro)) {
+            select.options[i].style.display = '';
+        } else {
+            select.options[i].style.display = 'none';
+        }
+    }
+    // Si hay coincidencias, selecciona la primera visible (que no sea el placeholder)
+    for (let i = 1; i < select.options.length; i++) {
+        if (select.options[i].style.display !== 'none') {
+            select.selectedIndex = i;
+            break;
+        }
+    }
+}
+
+function verificarCamposPedido() {
+    // IDs de los campos requeridos
+    const campos = [
+        'inputNombre', 'inputCorreo', 'inputDireccion', 'inputTelefono', 'inputFecha'
+    ];
+    let completos = true;
+    campos.forEach(id => {
+        const el = document.getElementById(id);
+        if(!el || !el.value.trim()) completos = false;
+    });
+    // Habilitar o deshabilitar métodos de pago
+    const botones = document.querySelectorAll('.metodo-pago-btn');
+    botones.forEach(btn => {
+        if(btn.hasAttribute('data-pagado')) return; // Si ya se pagó, no cambiar estado
+        if(completos) {
+            btn.disabled = false;
+            btn.classList.remove('opacity-50', 'cursor-not-allowed');
+        } else {
+            btn.disabled = true;
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
+            btn.classList.remove('selected');
+        }
+    });
+}
+// Ejecutar al cargar y al cambiar campos
+window.addEventListener('DOMContentLoaded', verificarCamposPedido);
+['inputNombre','inputCorreo','inputDireccion','inputTelefono','inputFecha'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.addEventListener('input', verificarCamposPedido);
+});
+
+function deshabilitarMetodosPago() {
+    const botones = document.querySelectorAll('.metodo-pago-btn');
+    botones.forEach(btn => {
+        btn.disabled = true;
+        btn.classList.add('opacity-50', 'cursor-not-allowed');
+        btn.setAttribute('data-pagado','1');
+    });
+    // Mantener el sombreado en el método seleccionado
+    if(metodoSeleccionado) {
+        let idx = 0;
+        if(metodoSeleccionado === 'transferencia') idx = 0;
+        if(metodoSeleccionado === 'tarjeta') idx = 1;
+        if(metodoSeleccionado === 'yape') idx = 2;
+        const botonesArr = Array.from(botones);
+        botonesArr.forEach((btn, i) => {
+            if(i === idx) btn.classList.add('selected');
+            else btn.classList.remove('selected');
+        });
+    }
+}
+
+function simularPago(modalId) {
+    let cargandoId = '', exitoId = '';
+    if(modalId === 'modalTransferencia') {
+        cargandoId = 'cargandoTransferencia'; exitoId = 'exitoTransferencia';
+    }
+    if(modalId === 'modalTarjeta') {
+        cargandoId = 'cargandoTarjeta'; exitoId = 'exitoTarjeta';
+    }
+    document.getElementById(cargandoId).classList.remove('hidden');
+    setTimeout(function() {
+        document.getElementById(cargandoId).classList.add('hidden');
+        document.getElementById(exitoId).classList.remove('hidden');
+        setTimeout(function() {
+            cerrarModal(modalId);
+            deshabilitarMetodosPago();
+        }, 1500);
+    }, 2000);
+    return false;
+}
+
+// Deshabilitar el botón de confirmar compra hasta que se seleccione método de pago
+window.addEventListener('DOMContentLoaded', function() {
+    const btn = document.getElementById('btnConfirmarCompra');
+    if(btn) btn.disabled = true;
+});
 </script>
-@endpush 
+@endsection 

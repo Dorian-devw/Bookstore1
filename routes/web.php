@@ -12,7 +12,7 @@ use App\Http\Controllers\AdminPedidoController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ResenaController;
 use App\Http\Controllers\SuscriptorController;
-use App\Http\Controllers\PagoController;
+use App\Http\Controllers\PedidoController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/catalogo', [CatalogoController::class, 'index'])->name('catalogo');
@@ -104,9 +104,9 @@ Route::get('/buscar-ajax', [App\Http\Controllers\CatalogoController::class, 'bus
 
 Route::post('/suscribirse', [SuscriptorController::class, 'store'])->name('suscribirse');
 
-Route::post('/pago/mercadopago', [PagoController::class, 'mercadopago'])->name('pago.mercadopago');
-Route::get('/pago/exito', [PagoController::class, 'exito'])->name('pago.exito');
-Route::get('/pago/fallo', [PagoController::class, 'fallo'])->name('pago.fallo');
-Route::get('/pago/pendiente', [PagoController::class, 'pendiente'])->name('pago.pendiente');
+Route::get('/compra-realizada/{pedido}', [PedidoController::class, 'compraRealizada'])->name('compra.realizada');
+Route::get('/pedido/{pedido}/comprobante', [PedidoController::class, 'descargarComprobante'])->name('pedido.comprobante');
+Route::get('/mis-pedidos', [PedidoController::class, 'misPedidos'])->name('cliente.pedidos');
+Route::post('/procesar-compra', [PedidoController::class, 'procesarCompra'])->name('pedido.procesar');
 
 require __DIR__.'/auth.php';

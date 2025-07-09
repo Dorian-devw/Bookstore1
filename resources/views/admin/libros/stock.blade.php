@@ -17,7 +17,7 @@
         <form method="GET" class="flex gap-2">
             <label class="flex items-center gap-2">
                 <input type="checkbox" name="bajo" value="1" @if(request('bajo')) checked @endif>
-                <span>Solo stock bajo (< 5)</span>
+                <span>Solo stock bajo (< 10)</span>
             </label>
             <button class="bg-blue-50 text-blue-800 border border-blue-200 px-6 py-2 rounded-lg hover:bg-blue-100 transition font-semibold flex items-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -55,7 +55,7 @@
                         <td class="px-4 py-3">
                             @if($libro->imagen)
                                 <div class="flex items-center">
-                                    <img src="{{ asset('storage/' . $libro->imagen) }}" 
+                                    <img src="{{ asset($libro->imagen) }}" 
                                          alt="{{ $libro->titulo }}" 
                                          class="w-16 h-20 object-cover rounded shadow-md border border-gray-200"
                                          onerror="this.src='https://placehold.co/200x300/cccccc/666666?text=Sin+Imagen'">

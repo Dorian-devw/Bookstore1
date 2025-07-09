@@ -47,7 +47,7 @@
                         <td class="px-4 py-3">
                             @if($libro->imagen)
                                 <div class="flex items-center">
-                                    <img src="{{ asset('storage/' . $libro->imagen) }}" 
+                                    <img src="{{ asset($libro->imagen) }}" 
                                          alt="{{ $libro->titulo }}" 
                                          class="w-16 h-20 object-cover rounded shadow-md border border-gray-200"
                                          onerror="this.src='https://placehold.co/200x300/cccccc/666666?text=Sin+Imagen'">

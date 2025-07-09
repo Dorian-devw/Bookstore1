@@ -25,6 +25,17 @@ class PedidoConfirmado extends Mailable
     }
 
     /**
+     * Build the message.
+     */
+    public function build()
+    {
+        return $this->from('noreply@flyingbookstore.com', 'Flying Bookstore')
+            ->subject('Confirmación de tu pedido en Flying Bookstore')
+            ->view('emails.pedido_confirmado')
+            ->with(['pedido' => $this->pedido]);
+    }
+
+    /**
      * Get the message envelope.
      */
     public function envelope(): Envelope

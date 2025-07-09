@@ -79,7 +79,7 @@ class CarritoController extends Controller
                 'reservado_hasta' => now()->addMinutes(30),
             ]);
         }
-        return redirect()->route('carrito.index')->with('success', 'Libro añadido al carrito');
+        return redirect()->route('carrito.index')->with('success', '¡Libro añadido al carrito exitosamente!');
     }
 
     public function eliminar($id)

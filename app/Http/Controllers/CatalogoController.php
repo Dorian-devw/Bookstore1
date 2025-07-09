@@ -84,7 +84,7 @@ class CatalogoController extends Controller
                 'id' => $libro->id,
                 'titulo' => $libro->titulo,
                 'autor' => $libro->autor ? $libro->autor->nombre : '',
-                'imagen' => $libro->imagen ? asset('storage/' . $libro->imagen) : asset('images/default-book.png'),
+                'imagen' => $libro->imagen ? asset($libro->imagen) : asset('images/default-book.png'),
                 'url' => route('libro.detalle', $libro->id),
             ];
         });

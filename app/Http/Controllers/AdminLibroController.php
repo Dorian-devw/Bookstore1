@@ -103,7 +103,7 @@ class AdminLibroController extends Controller
     {
         $query = Libro::with('autor', 'categoria');
         if ($request->filled('bajo')) {
-            $query->where('stock', '<', 5);
+            $query->where('stock', '<', 10);
         }
         $libros = $query->orderBy('stock')->paginate(15);
         return view('admin.libros.stock', compact('libros'));

@@ -29,7 +29,7 @@
         <div>
             <label class="block font-semibold mb-1">Imagen actual</label>
             @if($libro->imagen)
-                <img src="{{ asset('storage/' . $libro->imagen) }}" alt="{{ $libro->titulo }}" class="w-24 h-32 object-cover rounded mb-2">
+                <img src="{{ asset($libro->imagen) }}" alt="{{ $libro->titulo }}" class="w-24 h-32 object-cover rounded mb-2">
             @else
                 <span class="text-gray-400">Sin imagen</span>
             @endif
