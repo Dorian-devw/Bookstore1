@@ -34,7 +34,7 @@ Proyecto completo de una tienda de libros online desarrollado en Laravel. Incluy
 
 1. **Clona el repositorio:**
    ```bash
-   git clone <url-del-repo>
+   git clone https://github.com/Dorian-devw/Bookstore1
    cd bookstore
    ```
 2. **Instala dependencias:**
