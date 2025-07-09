@@ -6,9 +6,7 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
+    protected $table = 'suscriptores';
     public function up(): void
     {
         Schema::create('suscriptores', function (Blueprint $table) {

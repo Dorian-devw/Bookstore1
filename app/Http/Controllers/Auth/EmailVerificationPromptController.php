@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Auth;
 
+// Controlador para mostrar el aviso de verificación de correo electrónico
 class EmailVerificationPromptController extends Controller
 {
     /**

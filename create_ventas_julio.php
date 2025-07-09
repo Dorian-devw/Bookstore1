@@ -26,14 +26,13 @@ if ($usuarios->isEmpty() || $libros->isEmpty()) {
 for ($i = 0; $i < 8; $i++) {
     $usuario = $usuarios->random();
     $fecha = Carbon::now()->subDays(rand(1, 6)); // Últimos 6 días de julio
-    $estado = 'completado'; // Todos completados para que se muestren en ventas
+    
     $metodoPago = ['tarjeta', 'yape', 'transferencia'][array_rand(['tarjeta', 'yape', 'transferencia'])];
     
     // Crear pedido
     $pedido = Pedido::create([
         'user_id' => $usuario->id,
         'fecha' => $fecha,
-        'estado' => $estado,
         'total' => 0,
         'metodo_pago' => $metodoPago,
     ]);

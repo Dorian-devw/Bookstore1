@@ -32,10 +32,17 @@
                                     <span class="text-2xl font-bold text-[#0A2342]">S/ {{ number_format($libro->precio, 2) }}</span>
                                 </div>
                                 <div class="flex gap-3">
-                                    <form method="POST" action="{{ route('carrito.agregar', $libro->id) }}">
-                                        @csrf
-                                        <button type="submit" class="px-6 py-2 rounded-lg bg-[#0A2342] text-white font-semibold hover:bg-[#16335B] transition">Comprar ahora</button>
-                                    </form>
+                                    @if(Auth::check())
+                                        <form method="POST" action="{{ route('carrito.agregar') }}" onsubmit="return true;">
+                                            @csrf
+                                            <input type="hidden" name="libro_id" value="{{ $libro->id }}">
+                                            <input type="hidden" name="cantidad" value="1">
+                                            <input type="hidden" name="redirect_to_carrito" value="1">
+                                            <button type="submit" class="px-6 py-2 rounded-lg bg-[#0A2342] text-white font-semibold hover:bg-[#16335B] transition">Comprar ahora</button>
+                                        </form>
+                                    @else
+                                        <a href="{{ route('carrito.advertencia_login') }}" class="px-6 py-2 rounded-lg bg-[#0A2342] text-white font-semibold hover:bg-[#16335B] transition">Comprar ahora</a>
+                                    @endif
                                     <a href="{{ route('libro.detalle', $libro->id) }}" class="px-6 py-2 rounded-lg border border-[#0A2342] text-[#0A2342] font-semibold hover:bg-[#0A2342] hover:text-white transition">Ver detalles</a>
                                 </div>
                             </div>
@@ -45,10 +52,12 @@
                         <div class="flex-1 flex justify-end items-center relative z-10 min-h-[420px] md:pl-12">
                             <!-- Fondo circular decorativo -->
                             <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#F9B233] opacity-30 rounded-full -z-10"></div>
-                            <!-- Imagen del libro -->
-                            <img src="{{ $libro->imagen ? asset($libro->imagen) : asset('images/default-book.png') }}"
-                                alt="{{ $libro->titulo }}"
-                                class="w-[280px] h-[420px] object-cover rounded-xl shadow-2xl relative z-20">
+                            <!-- Imagen del libro como enlace al detalle -->
+                            <a href="{{ route('libro.detalle', $libro->id) }}">
+                                <img src="{{ $libro->imagen ? asset($libro->imagen) : asset('images/default-book.png') }}"
+                                    alt="{{ $libro->titulo }}"
+                                    class="w-[280px] h-[420px] object-cover rounded-xl shadow-2xl relative z-20">
+                            </a>
                         </div>
                     </div>
                 @endforeach
@@ -267,12 +276,7 @@
                 <div class="text-[#EAA451] font-semibold text-lg mb-3">S/ ${parseFloat(libro.precio).toFixed(2)}</div>
                 <form method="POST" action="/carrito/agregar/${libro.id}">
                     @csrf
-                    <button type="submit" class="px-6 py-2 rounded-lg bg-[#EAA451] text-white font-semibold hover:bg-[#d18a36] transition flex items-center gap-2 mx-auto">
-                        <svg class='w-5 h-5' fill='none' stroke='currentColor' stroke-width='2' viewBox='0 0 24 24'>
-                            <path d='M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.35 2.7A1 1 0 0 0 6.6 17h10.8a1 1 0 0 0 .95-.68L21 13M7 13V6a1 1 0 0 1 1-1h3m4 0h2a1 1 0 0 1 1 1v7'></path>
-                        </svg>
-                        Añadir a la cesta
-                    </button>
+                    
                 </form>
             `;
         }

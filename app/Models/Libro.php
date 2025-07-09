@@ -10,7 +10,7 @@ class Libro extends Model
     use HasFactory;
 
     protected $fillable = [
-        'titulo', 'descripcion', 'precio', 'stock', 'imagen', 'categoria_id', 'autor_id', 'idioma', 'valoracion', 'publicado_en'
+        'titulo', 'descripcion', 'precio', 'stock', 'imagen', 'categoria_id', 'autor_id', 'idioma', 'valoracion', 'valoracion_por_defecto', 'publicado_en'
     ];
 
     public function categoria()
@@ -60,11 +60,31 @@ class Libro extends Model
 
     public function getValoracionPromedioAttribute()
     {
-        return $this->resenasAprobadas()->avg('calificacion') ?? 0;
+        $resenasAprobadas = $this->resenasAprobadas();
+        $totalResenas = $resenasAprobadas->count();
+        
+        if ($totalResenas > 0) {
+            // Calcular promedio de reseñas de usuarios
+            $promedioResenas = $resenasAprobadas->avg('calificacion');
+            
+            // Calcular promedio ponderado: 70% reseñas de usuarios + 30% calificación por defecto
+            $valoracionFinal = ($promedioResenas * 0.7) + ($this->valoracion_por_defecto * 0.3);
+            
+            return round($valoracionFinal, 1);
+        } else {
+            // Si no hay reseñas, usar solo la calificación por defecto
+            return $this->valoracion_por_defecto;
+        }
     }
 
     public function getTotalResenasAttribute()
     {
         return $this->resenasAprobadas()->count();
+    }
+
+    // Método para obtener solo el promedio de reseñas de usuarios
+    public function getPromedioResenasUsuariosAttribute()
+    {
+        return $this->resenasAprobadas()->avg('calificacion') ?? 0;
     }
 }

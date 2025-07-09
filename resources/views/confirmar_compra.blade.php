@@ -38,17 +38,64 @@
                             <label class="block text-sm font-medium mb-1">Correo</label>
                             <input type="email" id="inputCorreo" name="email" value="{{ old('email', Auth::user()->email ?? '') }}" required class="w-full border rounded px-3 py-2">
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium mb-1">Dirección</label>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium mb-1">Seleccionar dirección guardada</label>
+                            <select id="selectDireccion" class="w-full border rounded px-3 py-2">
+                                <option value="">Selecciona una dirección o crea una nueva</option>
+                            </select>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium mb-1">Dirección completa</label>
                             <input type="text" id="inputDireccion" name="direccion_completa" value="{{ old('direccion_completa') }}" required class="w-full border rounded px-3 py-2">
                         </div>
                         <div>
+                            <label class="block text-sm font-medium mb-1">Departamento</label>
+                            <select id="inputDepartamento" name="departamento" class="w-full border rounded px-3 py-2" required>
+                                <option value="">Seleccione departamento</option>
+                                <option value="Amazonas">Amazonas</option>
+                                <option value="Áncash">Áncash</option>
+                                <option value="Apurímac">Apurímac</option>
+                                <option value="Arequipa">Arequipa</option>
+                                <option value="Ayacucho">Ayacucho</option>
+                                <option value="Cajamarca">Cajamarca</option>
+                                <option value="Callao">Callao</option>
+                                <option value="Cusco">Cusco</option>
+                                <option value="Huancavelica">Huancavelica</option>
+                                <option value="Huánuco">Huánuco</option>
+                                <option value="Ica">Ica</option>
+                                <option value="Junín">Junín</option>
+                                <option value="La Libertad">La Libertad</option>
+                                <option value="Lambayeque">Lambayeque</option>
+                                <option value="Lima" selected>Lima</option>
+                                <option value="Loreto">Loreto</option>
+                                <option value="Madre de Dios">Madre de Dios</option>
+                                <option value="Moquegua">Moquegua</option>
+                                <option value="Pasco">Pasco</option>
+                                <option value="Piura">Piura</option>
+                                <option value="Puno">Puno</option>
+                                <option value="San Martín">San Martín</option>
+                                <option value="Tacna">Tacna</option>
+                                <option value="Tumbes">Tumbes</option>
+                                <option value="Ucayali">Ucayali</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Ciudad</label>
+                            <input type="text" id="inputCiudad" name="ciudad" value="{{ old('ciudad', 'Lima') }}" required class="w-full border rounded px-3 py-2">
+                        </div>
+                        <div>
                             <label class="block text-sm font-medium mb-1">Número de teléfono</label>
-                            <input type="tel" id="inputTelefono" name="telefono" value="{{ old('telefono', Auth::user()->telefono ?? '') }}" required class="w-full border rounded px-3 py-2">
+                            <input type="tel" id="inputTelefono" name="telefono" value="{{ old('telefono', Auth::user()->telefono ?? '') }}" required class="w-full border rounded px-3 py-2" pattern="[0-9]{9}" maxlength="9" minlength="9" title="Debe ser un número de 9 dígitos" inputmode="numeric">
+                            <span class="text-xs text-gray-500">Debe ser un número de 9 dígitos</span>
                         </div>
                         <div>
                             <label class="block text-sm font-medium mb-1">Fecha de entrega</label>
-                            <input type="date" id="inputFecha" name="fecha_entrega" value="{{ old('fecha_entrega', date('Y-m-d')) }}" required class="w-full border rounded px-3 py-2">
+                            <input type="date" id="inputFecha" name="fecha_entrega" value="{{ old('fecha_entrega', date('Y-m-d', strtotime('+4 days'))) }}" required class="w-full border rounded px-3 py-2" min="{{ date('Y-m-d', strtotime('+4 days')) }}">
+                        </div>
+                        <div class="md:col-span-2">
+                            <button type="button" onclick="guardarDireccionActual()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm">
+                                💾 Guardar esta dirección para futuras compras
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -247,6 +294,34 @@
 }
 </style>
 <script>
+// Configurar fecha mínima para entrega (día actual +  días)
+document.addEventListener('DOMContentLoaded', function() {
+    const inputFecha = document.getElementById('inputFecha');
+    if (inputFecha) {
+        // Calcular fecha mínima (hoy + 4 días)
+        const hoy = new Date();
+        const fechaMinima = new Date(hoy);
+        fechaMinima.setDate(hoy.getDate() + 4);
+        
+        // Formatear fecha para el atributo min
+        const fechaMinimaStr = fechaMinima.toISOString().split('T')[0];
+        inputFecha.setAttribute('min', fechaMinimaStr);
+        
+        // Si no hay valor o el valor es anterior a la fecha mínima, establecer la fecha mínima
+        if (!inputFecha.value || inputFecha.value < fechaMinimaStr) {
+            inputFecha.value = fechaMinimaStr;
+        }
+        
+        // Validar cuando el usuario cambie la fecha
+        inputFecha.addEventListener('change', function() {
+            if (this.value < fechaMinimaStr) {
+                alert('La fecha de entrega debe ser al menos 4 días después de hoy.');
+                this.value = fechaMinimaStr;
+            }
+        });
+    }
+});
+
 function actualizarEntrega() {
     document.getElementById('entregaNombre').textContent = document.getElementById('inputNombre').value;
     // Formatear fecha a dd/mm/yyyy
@@ -492,6 +567,164 @@ function simularPago(modalId) {
 window.addEventListener('DOMContentLoaded', function() {
     const btn = document.getElementById('btnConfirmarCompra');
     if(btn) btn.disabled = true;
+    
+    // Cargar direcciones del usuario
+    cargarDirecciones();
 });
+
+// Funciones para manejar direcciones
+function cargarDirecciones() {
+    fetch('{{ route("user.direcciones.obtener") }}', {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(direcciones => {
+        const select = document.getElementById('selectDireccion');
+        select.innerHTML = '<option value="">Selecciona una dirección o crea una nueva</option>';
+        
+        if (direcciones.length === 0) {
+            // Si no hay direcciones, crear una automática
+            crearDireccionAutomatica();
+        } else {
+            // Agregar las direcciones existentes
+            direcciones.forEach(direccion => {
+                const option = document.createElement('option');
+                option.value = direccion.id;
+                option.textContent = `${direccion.direccion} - ${direccion.departamento}, ${direccion.ciudad}`;
+                select.appendChild(option);
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error al cargar direcciones:', error);
+    });
+}
+
+function crearDireccionAutomatica() {
+    fetch('{{ route("user.direcciones.crear-automatica") }}', {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Recargar direcciones después de crear la automática
+            cargarDirecciones();
+        }
+    })
+    .catch(error => {
+        console.error('Error al crear dirección automática:', error);
+    });
+}
+
+// Manejar selección de dirección
+document.getElementById('selectDireccion').addEventListener('change', function() {
+    const direccionId = this.value;
+    if (direccionId) {
+        // Obtener los datos de la dirección seleccionada
+        fetch('{{ route("user.direcciones.obtener") }}', {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(direcciones => {
+            const direccion = direcciones.find(d => d.id == direccionId);
+            if (direccion) {
+                // Llenar los campos con los datos de la dirección
+                document.getElementById('inputDireccion').value = direccion.direccion;
+                document.getElementById('inputDepartamento').value = direccion.departamento;
+                document.getElementById('inputCiudad').value = direccion.ciudad;
+                document.getElementById('inputTelefono').value = direccion.telefono;
+                
+                // Actualizar la información de entrega
+                actualizarEntrega();
+            }
+        });
+    }
+});
+
+// Función para guardar la dirección actual como nueva dirección
+function guardarDireccionActual() {
+    const direccion = document.getElementById('inputDireccion').value;
+    const departamento = document.getElementById('inputDepartamento').value;
+    const ciudad = document.getElementById('inputCiudad').value;
+    const telefono = document.getElementById('inputTelefono').value;
+    
+    if (!direccion || !departamento || !ciudad || !telefono) {
+        alert('Por favor completa todos los campos de dirección antes de guardar');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('direccion', direccion);
+    formData.append('departamento', departamento);
+    formData.append('ciudad', ciudad);
+    formData.append('telefono', telefono);
+    formData.append('referencia', 'Dirección de compra');
+    formData.append('_token', '{{ csrf_token() }}');
+    
+    fetch('{{ route("user.direcciones.store") }}', {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Dirección guardada correctamente');
+            cargarDirecciones();
+        } else {
+            alert('Error al guardar la dirección');
+        }
+    })
+    .catch(error => {
+        console.error('Error al guardar dirección:', error);
+        alert('Error al guardar la dirección');
+    });
+}
+
+// Actualizar la función actualizarEntrega para incluir los nuevos campos
+function actualizarEntrega() {
+    document.getElementById('entregaNombre').textContent = document.getElementById('inputNombre').value;
+    // Formatear fecha a dd/mm/yyyy
+    let fecha = document.getElementById('inputFecha').value;
+    if(fecha) {
+        let partes = fecha.split('-');
+        if(partes.length === 3) {
+            document.getElementById('entregaFecha').textContent = partes[2] + '/' + partes[1] + '/' + partes[0];
+        } else {
+            document.getElementById('entregaFecha').textContent = fecha;
+        }
+    } else {
+        document.getElementById('entregaFecha').textContent = '';
+    }
+    
+    // Construir dirección completa con departamento y ciudad
+    const direccion = document.getElementById('inputDireccion').value;
+    const departamento = document.getElementById('inputDepartamento').value;
+    const ciudad = document.getElementById('inputCiudad').value;
+    const direccionCompleta = `${direccion}, ${ciudad}, ${departamento}`;
+    
+    document.getElementById('entregaDireccion').textContent = direccionCompleta;
+    document.getElementById('entregaTelefono').textContent = document.getElementById('inputTelefono').value;
+}
+
+// Agregar event listeners para los nuevos campos
+document.getElementById('inputDepartamento').addEventListener('input', actualizarEntrega);
+document.getElementById('inputCiudad').addEventListener('input', actualizarEntrega);
 </script>
 @endsection 

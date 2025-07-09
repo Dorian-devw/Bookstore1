@@ -75,7 +75,6 @@ class PedidoSeeder extends Seeder
                 Pago::create([
                     'pedido_id' => $pedido->id,
                     'tipo' => $metodoPago,
-                    'estado' => 'completado',
                     'fecha' => $fecha,
                 ]);
             }

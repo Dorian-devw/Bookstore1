@@ -53,7 +53,7 @@
                     @elseif(auth()->user() && !auth()->user()->is_admin)
                         <div class="flex gap-2 items-center">
                             <a href="{{ route('carrito.index') }}" class="text-[#0A2342] hover:text-[#16335B]">
-                                <img src="{{ asset('icons/cart.svg') }}" alt="Carrito" class="w-7 h-7">
+                                <img src="{{ asset('icons/carrito.svg') }}" alt="Carrito" class="w-7 h-7">
                             </a>
                             <!-- Menú desplegable del usuario -->
                             <div class="relative" x-data="{ open: false }">
@@ -136,6 +136,7 @@
             @php($categoriasFooter = \App\Models\Categoria::all())
             @include('layouts.footer', ['categorias' => $categoriasFooter])
         @endif
+        @stack('scripts')
     </body>
     <script>
     document.addEventListener('DOMContentLoaded', function () {

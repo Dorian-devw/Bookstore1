@@ -8,9 +8,10 @@ use App\Models\Categoria;
 use App\Models\Autor;
 use Illuminate\Support\Facades\Storage;
 
+// Controlador para la gestión de libros en el panel de administración
 class AdminLibroController extends Controller
 {
-    // Listar libros
+    // Muestra la lista de libros para administración
     public function index(Request $request)
     {
         $query = Libro::with('autor', 'categoria');
@@ -21,7 +22,7 @@ class AdminLibroController extends Controller
         return view('admin.libros.index', compact('libros'));
     }
 
-    // Formulario crear
+    // Muestra el formulario para crear un nuevo libro
     public function create()
     {
         $categorias = Categoria::all();
@@ -29,7 +30,7 @@ class AdminLibroController extends Controller
         return view('admin.libros.create', compact('categorias', 'autores'));
     }
 
-    // Guardar libro
+    // Guarda un nuevo libro en la base de datos
     public function store(Request $request)
     {
         $data = $request->validate([
@@ -51,7 +52,7 @@ class AdminLibroController extends Controller
         return redirect()->route('admin.libros.index')->with('success', 'Libro creado correctamente');
     }
 
-    // Formulario editar
+    // Muestra el formulario para editar un libro existente
     public function edit($id)
     {
         $libro = Libro::findOrFail($id);
@@ -60,7 +61,7 @@ class AdminLibroController extends Controller
         return view('admin.libros.edit', compact('libro', 'categorias', 'autores'));
     }
 
-    // Actualizar libro
+    // Actualiza la información de un libro
     public function update(Request $request, $id)
     {
         $libro = Libro::findOrFail($id);
@@ -87,7 +88,7 @@ class AdminLibroController extends Controller
         return redirect()->route('admin.libros.index')->with('success', 'Libro actualizado correctamente');
     }
 
-    // Eliminar libro
+    // Elimina un libro de la base de datos
     public function destroy($id)
     {
         $libro = Libro::findOrFail($id);

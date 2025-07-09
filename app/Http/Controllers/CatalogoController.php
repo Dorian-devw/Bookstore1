@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Libro;
 use App\Models\Categoria;
+use App\Models\Carrito;
 
 class CatalogoController extends Controller
 {
@@ -53,6 +54,13 @@ class CatalogoController extends Controller
             );
         }
         
+        // Calcular stock disponible considerando reservas activas
+        $stockReservado = \App\Models\Carrito::where('libro_id', $id)
+            ->where('reservado_hasta', '>', now())
+            ->sum('cantidad');
+        
+        $stockDisponible = max(0, $libro->stock - $stockReservado);
+        
         // Obtener libros recomendados
         $recomendados = \App\Models\Libro::where('id', '!=', $id)
             ->where(function($query) use ($libro) {
@@ -63,7 +71,7 @@ class CatalogoController extends Controller
             ->take(6)
             ->get();
         
-        return view('libro_detalle', compact('libro', 'recomendados'));
+        return view('libro_detalle', compact('libro', 'recomendados', 'stockDisponible', 'stockReservado'));
     }
 
     public function buscarAjax(Request $request)

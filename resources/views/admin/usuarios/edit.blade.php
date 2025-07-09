@@ -91,41 +91,6 @@
                 </div>
             </div>
             
-            <!-- Estado de verificación -->
-            <div class="border-t border-gray-200 pt-6">
-                <h4 class="text-md font-semibold mb-4 text-gray-800">Estado de la cuenta</h4>
-                
-                <div class="space-y-4">
-                    <div class="flex items-center">
-                        <input type="checkbox" id="email_verified" name="email_verified" value="1" 
-                               {{ $usuario->email_verified_at ? 'checked' : '' }}
-                               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                        <label for="email_verified" class="ml-3 text-sm font-medium text-gray-700">
-                            Email verificado
-                        </label>
-                        <span class="ml-2 text-xs text-gray-500">
-                            @if($usuario->email_verified_at)
-                                Verificado el {{ $usuario->email_verified_at->format('d/m/Y H:i') }}
-                            @else
-                                Pendiente de verificación
-                            @endif
-                        </span>
-                    </div>
-                    
-                    <div class="flex items-center">
-                        <input type="checkbox" id="is_active" name="is_active" value="1" 
-                               {{ !$usuario->deleted_at ? 'checked' : '' }}
-                               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                        <label for="is_active" class="ml-3 text-sm font-medium text-gray-700">
-                            Cuenta activa
-                        </label>
-                        <span class="ml-2 text-xs text-gray-500">
-                            El usuario puede acceder al sistema
-                        </span>
-                    </div>
-                </div>
-            </div>
-            
             <!-- Información adicional -->
             <div class="border-t border-gray-200 pt-6">
                 <h4 class="text-md font-semibold mb-4 text-gray-800">Información adicional</h4>
@@ -164,12 +129,7 @@
                         </svg>Ver pedidos
                     </a>
                     
-                    <button type="button" 
-                            class="inline-flex items-center gap-2 bg-yellow-600 text-white px-6 py-2 rounded-lg hover:bg-yellow-700 transition font-semibold">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                        </svg>Resetear contraseña
-                    </button>
+                    
                 </div>
                 
                 <div class="flex gap-3">

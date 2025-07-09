@@ -112,11 +112,21 @@ class ResenaController extends Controller
     }
 
     // Panel de administración para moderar reseñas
-    public function adminIndex()
+    public function adminIndex(Request $request)
     {
-        $resenas = Resena::with(['user', 'libro'])
-            ->orderByDesc('created_at')
-            ->paginate(20);
+        $query = Resena::with(['user', 'libro']);
+
+        // Filtro por estado
+        if ($request->filled('estado')) {
+            $query->where('estado', $request->estado);
+        }
+
+        // Filtro por calificación
+        if ($request->filled('calificacion')) {
+            $query->where('calificacion', $request->calificacion);
+        }
+
+        $resenas = $query->orderByDesc('created_at')->paginate(20);
             
         return view('admin.resenas.index', compact('resenas'));
     }
@@ -129,8 +139,41 @@ class ResenaController extends Controller
         ]);
 
         $resena = Resena::findOrFail($id);
+        $libro = $resena->libro;
+        $estadoAnterior = $resena->estado;
+        
         $resena->update(['estado' => $request->estado]);
 
-        return back()->with('success', 'Reseña ' . $request->estado . ' correctamente');
+        // Actualizar la valoración del libro
+        $this->actualizarValoracionLibro($libro);
+
+        $mensaje = 'Reseña ' . $request->estado . ' correctamente';
+        
+        // Si se aprobó una reseña que antes estaba rechazada, o viceversa
+        if ($estadoAnterior !== $request->estado) {
+            $mensaje .= '. La valoración del libro ha sido actualizada.';
+        }
+
+        return back()->with('success', $mensaje);
+    }
+
+    // Método privado para actualizar la valoración del libro
+    private function actualizarValoracionLibro($libro)
+    {
+        $resenasAprobadas = $libro->resenasAprobadas();
+        $totalResenas = $resenasAprobadas->count();
+        
+        if ($totalResenas > 0) {
+            // Calcular promedio de reseñas de usuarios
+            $promedioResenas = $resenasAprobadas->avg('calificacion');
+            
+            // Calcular promedio ponderado: 70% reseñas de usuarios + 30% calificación por defecto
+            $valoracionFinal = ($promedioResenas * 0.7) + ($libro->valoracion_por_defecto * 0.3);
+            
+            $libro->update(['valoracion' => round($valoracionFinal, 1)]);
+        } else {
+            // Si no hay reseñas aprobadas, usar solo la calificación por defecto
+            $libro->update(['valoracion' => $libro->valoracion_por_defecto]);
+        }
     }
 }

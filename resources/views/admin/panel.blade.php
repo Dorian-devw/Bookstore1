@@ -68,7 +68,7 @@
                             <div class="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-xl">
                                 <div class="w-12 h-16 bg-gray-200 rounded shadow-sm overflow-hidden flex-shrink-0">
                                     @if($libro->imagen)
-                                        <img src="{{ asset('storage/' . $libro->imagen) }}" 
+                                        <img src="{{ asset($libro->imagen) }}" 
                                              alt="{{ $libro->titulo }}" 
                                              class="w-full h-full object-cover"
                                              onerror="this.src='https://placehold.co/200x300/cccccc/666666?text=Sin+Imagen'">
@@ -112,7 +112,7 @@
                                 ">
                                     <div class="w-12 h-16 bg-gray-200 rounded shadow-sm overflow-hidden flex-shrink-0">
                                         @if($libro->imagen)
-                                            <img src="{{ asset('storage/' . $libro->imagen) }}" 
+                                            <img src="{{ asset($libro->imagen) }}" 
                                                  alt="{{ $libro->titulo }}" 
                                                  class="w-full h-full object-cover"
                                                  onerror="this.src='https://placehold.co/200x300/cccccc/666666?text=Sin+Imagen'">

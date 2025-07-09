@@ -27,8 +27,9 @@
             <hr class="mb-6">
             <!-- Resumen de libros -->
             <div class="mb-6">
+                <h3 class="font-bold text-lg mb-4">Resumen de libros</h3>
                 @foreach($libros as $item)
-                <div class="flex items-center gap-6 mb-4">
+                <div class="flex items-center gap-6 mb-4 p-4 border rounded-lg">
                     <img src="{{ asset($item->libro->imagen ?? 'images/default-book.png') }}" alt="{{ $item->libro->titulo }}" class="w-20 h-28 object-cover rounded shadow">
                     <div class="flex-1">
                         <div class="font-bold text-lg">{{ $item->libro->titulo }}</div>
@@ -36,18 +37,39 @@
                         <div class="text-gray-600">Cantidad: <span class="font-semibold">{{ $item->cantidad }}</span></div>
                     </div>
                     <div class="text-right">
-                        <div class="text-gray-500 text-sm">Precio de venta:</div>
+                        <div class="text-gray-500 text-sm">Precio unitario:</div>
                         <div class="font-bold text-lg">S/ {{ number_format($item->libro->precio, 2) }}</div>
                         <div class="text-gray-500 text-sm mt-2">Subtotal:</div>
                         <div class="font-bold text-lg text-[#EAA451]">S/ {{ number_format($item->libro->precio * $item->cantidad, 2) }}</div>
                     </div>
                 </div>
                 @endforeach
-                @if($cupon)
-                <div class="flex justify-end mt-2">
-                    <span class="text-green-600 font-semibold">Cupón aplicado: {{ $cupon->codigo }} (-S/ {{ number_format($cupon->descuento, 2) }})</span>
+                
+                <!-- Resumen de costos -->
+                <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                    <h4 class="font-bold text-lg mb-3">Resumen de costos</h4>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span>Subtotal:</span>
+                            <span>S/ {{ number_format($libros->sum(function($item) { return $item->libro->precio * $item->cantidad; }), 2) }}</span>
+                        </div>
+                        @if($cupon)
+                        <div class="flex justify-between text-green-600">
+                            <span>Descuento ({{ $cupon->codigo }}):</span>
+                            <span>- S/ {{ number_format($cupon->descuento, 2) }}</span>
+                        </div>
+                        @endif
+                        <div class="flex justify-between">
+                            <span>Costos de envío:</span>
+                            <span>S/ 15.00</span>
+                        </div>
+                        <hr class="my-2">
+                        <div class="flex justify-between font-bold text-lg">
+                            <span>Total:</span>
+                            <span>S/ {{ number_format($pedido->total, 2) }}</span>
+                        </div>
+                    </div>
                 </div>
-                @endif
             </div>
             <hr class="mb-6">
             <!-- Información del pedido -->
@@ -56,18 +78,18 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                     <div class="flex items-center gap-2"><span class="material-icons text-[#EAA451]">receipt_long</span> <span class="font-semibold">Número de pedido:</span> <span class="ml-2">PED-{{ $pedido->id }}</span></div>
                     <div class="flex items-center gap-2"><span class="material-icons text-[#EAA451]">event</span> <span class="font-semibold">Fecha de compra:</span> <span class="ml-2">{{ $pedido->created_at->format('d/m/Y') }}</span></div>
-                    <div class="flex items-center gap-2"><span class="material-icons text-[#EAA451]">person</span> <span class="font-semibold">Cliente:</span> <span class="ml-2">{{ $pedido->nombre }}</span></div>
-                    <div class="flex items-center gap-2"><span class="material-icons text-[#EAA451]">event_available</span> <span class="font-semibold">Fecha de entrega:</span> <span class="ml-2">{{ $pedido->fecha_entrega ? date('d/m/Y', strtotime($pedido->fecha_entrega)) : '-' }}</span></div>
-                    <div class="flex items-center gap-2"><span class="material-icons text-[#EAA451]">location_on</span> <span class="font-semibold">Dirección:</span> <span class="ml-2">{{ $pedido->direccion }}</span></div>
+                    <div class="flex items-center gap-2"><span class="material-icons text-[#EAA451]">person</span> <span class="font-semibold">Cliente:</span> <span class="ml-2">{{ $pedido->cliente_nombre ?? $pedido->user->name ?? 'N/A' }}</span></div>
+                    <div class="flex items-center gap-2"><span class="material-icons text-[#EAA451]">event_available</span> <span class="font-semibold">Fecha de entrega:</span> <span class="ml-2">{{ $pedido->fecha_entrega ? date('d/m/Y', strtotime($pedido->fecha_entrega)) : 'No especificada' }}</span></div>
+                    <div class="flex items-center gap-2"><span class="material-icons text-[#EAA451]">location_on</span> <span class="font-semibold">Dirección:</span> <span class="ml-2">{{ $pedido->direccion_entrega ?? 'No especificada' }}</span></div>
                     <div class="flex items-center gap-2"><span class="material-icons text-[#EAA451]">credit_card</span> <span class="font-semibold">Método de pago:</span> <span class="ml-2">{{ strtoupper($pedido->metodo_pago) }}</span></div>
-                    <div class="flex items-center gap-2"><span class="material-icons text-[#EAA451]">phone</span> <span class="font-semibold">Número de teléfono:</span> <span class="ml-2">{{ $pedido->telefono }}</span></div>
+                    <div class="flex items-center gap-2"><span class="material-icons text-[#EAA451]">phone</span> <span class="font-semibold">Número de teléfono:</span> <span class="ml-2">{{ $pedido->cliente_telefono ?? 'No especificado' }}</span></div>
                     <div class="flex items-center gap-2"><span class="material-icons text-[#EAA451]">attach_money</span> <span class="font-semibold">Importe total:</span> <span class="ml-2">S/ {{ number_format($pedido->total, 2) }}</span></div>
                 </div>
             </div>
             <div class="flex flex-col md:flex-row gap-4 mt-8 justify-center">
                 <a href="{{ route('catalogo') }}" class="bg-[#EAA451] hover:bg-orange-500 text-white font-semibold px-6 py-2 rounded shadow flex items-center gap-2 w-max"><span class="material-icons">arrow_back</span> Volver al catálogo</a>
                 <a href="{{ route('pedido.comprobante', $pedido->id) }}" class="bg-[#0A2342] hover:bg-[#EAA451] text-white font-semibold px-6 py-2 rounded shadow flex items-center gap-2 w-max"><span class="material-icons">download</span> Descargar comprobante</a>
-                <a href="{{ route('cliente.pedidos') }}" class="bg-[#0A2342] hover:bg-[#EAA451] text-white font-semibold px-6 py-2 rounded shadow flex items-center gap-2 w-max"><span class="material-icons">list_alt</span> Gestión de pedidos</a>
+                <a href="{{ route('user.pedidos') }}" class="bg-[#0A2342] hover:bg-[#EAA451] text-white font-semibold px-6 py-2 rounded shadow flex items-center gap-2 w-max"><span class="material-icons">list_alt</span> Gestión de pedidos</a>
             </div>
         </div>
     </div>

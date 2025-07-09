@@ -70,7 +70,6 @@
                 <tr>
                     <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Usuario</th>
                     <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Información</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Estado</th>
                     <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Actividad</th>
                     <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Acciones</th>
                 </tr>
@@ -80,11 +79,6 @@
                     <tr class="hover:bg-gray-50 transition">
                         <td class="px-6 py-4">
                             <div class="flex items-center">
-                                <div class="flex-shrink-0 h-12 w-12">
-                                    <div class="h-12 w-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg">
-                                        {{ strtoupper(substr($usuario->name, 0, 2)) }}
-                                    </div>
-                                </div>
                                 <div class="ml-4">
                                     <div class="text-sm font-semibold text-gray-900">{{ $usuario->name }}</div>
                                     <div class="text-sm text-gray-500">{{ $usuario->email }}</div>
@@ -106,21 +100,6 @@
                                     {{ $usuario->created_at->diffForHumans() }}
                                 </div>
                             </div>
-                        </td>
-                        <td class="px-6 py-4">
-                            @if($usuario->email_verified_at)
-                                <span class="inline-flex items-center px-3 py-1 rounded-full bg-green-100 text-green-800 font-semibold text-sm">
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>Verificado
-                                </span>
-                            @else
-                                <span class="inline-flex items-center px-3 py-1 rounded-full bg-yellow-100 text-yellow-800 font-semibold text-sm">
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3" />
-                                    </svg>Pendiente
-                                </span>
-                            @endif
                         </td>
                         <td class="px-6 py-4">
                             <div class="space-y-2">

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
+// Controlador para la confirmación de contraseña antes de acciones sensibles
 class ConfirmablePasswordController extends Controller
 {
     /**

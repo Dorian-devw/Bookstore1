@@ -14,12 +14,15 @@
 </head>
 <body>
     <div class="header">
-        <h2>Comprobante de Pedido - Flying Bookstore</h2>
+        <h2>Comprobante de Pedido</h2>
         <p><strong>Pedido #{{ $pedido->id }}</strong></p>
-        <p>Fecha: {{ $pedido->fecha ? \Carbon\Carbon::parse($pedido->fecha)->format('d/m/Y H:i') : '-' }}</p>
+        <p>Fecha del pedido: {{ $pedido->fecha ? \Carbon\Carbon::parse($pedido->fecha)->format('d/m/Y H:i') : '-' }}</p>
+        <p>Fecha de entrega: {{ $pedido->fecha_entrega ? \Carbon\Carbon::parse($pedido->fecha_entrega)->format('d/m/Y') : '-' }}</p>
     </div>
     <p><strong>Cliente:</strong> {{ $pedido->user->name ?? '-' }}<br>
-    <strong>Correo:</strong> {{ $pedido->user->email ?? '-' }}</p>
+    <strong>Correo:</strong> {{ $pedido->user->email ?? '-' }}<br>
+    <strong>Dirección de entrega:</strong> {{ $pedido->direccion_entrega ?? '-' }}</p>
+    <p><strong>Método de pago:</strong> {{ $pedido->metodo_pago }}</p>
     <table class="table">
         <thead>
             <tr>
@@ -40,12 +43,10 @@
             @endforeach
         </tbody>
     </table>
+    <p class="right">Costo de envío: <span class="bold">S/ 15.00</span></p>
     <p class="right bold">Total: S/ {{ number_format($pedido->total, 2) }}</p>
-    <p><strong>Estado del pedido:</strong> {{ ucfirst($pedido->estado) }}<br>
-    <strong>Método de pago:</strong> {{ $pedido->metodo_pago }}<br>
-    <strong>Estado del pago:</strong> {{ $pedido->pago->estado ?? 'pendiente' }}</p>
+    <p><strong>Estado del pedido:</strong> {{ ucfirst($pedido->estado) }}</p>
     <br>
     <p>Gracias por tu compra en Flying Bookstore.</p>
-    <p>Para cualquier consulta, contáctanos a través de nuestro servicio al cliente.</p>
 </body>
 </html> 

@@ -19,12 +19,18 @@ Route::get('/catalogo', [CatalogoController::class, 'index'])->name('catalogo');
 Route::get('/libro/{id}', [CatalogoController::class, 'show'])->name('libro.detalle');
 
 // Rutas públicas del carrito
-Route::get('/carrito', [CarritoController::class, 'index'])->name('carrito.index');
-Route::post('/carrito/agregar', [CarritoController::class, 'agregar'])->name('carrito.agregar');
-Route::post('/carrito/eliminar/{id}', [CarritoController::class, 'eliminar'])->name('carrito.eliminar');
-Route::get('/carrito/confirmar', [CarritoController::class, 'confirmar'])->name('carrito.confirmar');
-Route::post('/carrito/confirmar', [CarritoController::class, 'procesarCompra'])->name('carrito.procesar');
-Route::get('/carrito/comprobante/{id}', [CarritoController::class, 'comprobante'])->name('carrito.comprobante');
+Route::middleware('verificar.reservas')->group(function () {
+    Route::get('/carrito', [CarritoController::class, 'index'])->name('carrito.index');
+    Route::post('/carrito/agregar', [CarritoController::class, 'agregar'])->name('carrito.agregar');
+    Route::post('/carrito/actualizar/{id}', [CarritoController::class, 'actualizarCantidad'])->name('carrito.actualizar');
+    Route::post('/carrito/eliminar/{id}', [CarritoController::class, 'eliminar'])->name('carrito.eliminar');
+    Route::get('/carrito/confirmar', [CarritoController::class, 'confirmar'])->name('carrito.confirmar');
+    Route::post('/carrito/confirmar', [CarritoController::class, 'procesarCompra'])->name('carrito.procesar');
+    Route::get('/carrito/comprobante/{id}', [CarritoController::class, 'comprobante'])->name('carrito.comprobante');
+    Route::get('/carrito/advertencia-login', function () {
+        return view('carrito.advertencia_login');
+    })->name('carrito.advertencia_login');
+});
 
 // Redirigir dashboard a la página principal
 Route::get('/dashboard', function () {
@@ -54,10 +60,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/user/direcciones', [UserController::class, 'direcciones'])->name('user.direcciones');
     Route::post('/user/direcciones', [UserController::class, 'crearDireccion'])->name('user.direcciones.store');
     Route::post('/user/direcciones/{id}/eliminar', [UserController::class, 'eliminarDireccion'])->name('user.direcciones.destroy');
+    Route::get('/user/direcciones/obtener', [UserController::class, 'obtenerDirecciones'])->name('user.direcciones.obtener');
+    Route::post('/user/direcciones/crear-automatica', [UserController::class, 'crearDireccionAutomatica'])->name('user.direcciones.crear-automatica');
     Route::get('/user/pedidos', [UserController::class, 'pedidos'])->name('user.pedidos');
     Route::get('/user/pedidos/{id}', [UserController::class, 'pedidoDetalle'])->name('user.pedido.detalle');
+    Route::get('/user/pedidos/{id}/comprobante', [UserController::class, 'comprobante'])->name('user.pedido.comprobante');
     Route::get('/user/favoritos', [UserController::class, 'favoritos'])->name('user.favoritos');
     Route::post('/user/favoritos', [UserController::class, 'agregarFavorito'])->name('user.favoritos.store');
+    Route::post('/user/favoritos/toggle', [UserController::class, 'agregarFavorito'])->name('user.favoritos.toggle');
     Route::post('/user/favoritos/{id}/eliminar', [UserController::class, 'eliminarFavorito'])->name('user.favoritos.destroy');
     Route::get('/user/historial', [UserController::class, 'historial'])->name('user.historial');
     
@@ -95,18 +105,25 @@ Route::middleware('auth')->group(function () {
     });
 });
 
-// Ruta para generar reportes en PDF
+// Ruta para generar reportes en PDF desde el panel de administración
 Route::get('admin/reportes/pdf', [App\Http\Controllers\AdminController::class, 'generarReportePDF'])->name('admin.reportes.pdf');
 
-
-// Nueva ruta GET '/buscar-ajax'
+// Ruta para búsqueda AJAX en el catálogo (autocompletado o búsqueda en vivo)
 Route::get('/buscar-ajax', [App\Http\Controllers\CatalogoController::class, 'buscarAjax'])->name('buscar.ajax');
 
+// Ruta para suscribirse al newsletter o promociones
 Route::post('/suscribirse', [SuscriptorController::class, 'store'])->name('suscribirse');
 
+// Ruta que muestra la vista de compra realizada tras finalizar un pedido
 Route::get('/compra-realizada/{pedido}', [PedidoController::class, 'compraRealizada'])->name('compra.realizada');
+
+// Ruta para descargar el comprobante PDF de un pedido específico
 Route::get('/pedido/{pedido}/comprobante', [PedidoController::class, 'descargarComprobante'])->name('pedido.comprobante');
+
+// Ruta para que el cliente vea el historial de sus pedidos
 Route::get('/mis-pedidos', [PedidoController::class, 'misPedidos'])->name('cliente.pedidos');
+
+// Ruta para procesar la compra desde el formulario de confirmación
 Route::post('/procesar-compra', [PedidoController::class, 'procesarCompra'])->name('pedido.procesar');
 
 require __DIR__.'/auth.php';

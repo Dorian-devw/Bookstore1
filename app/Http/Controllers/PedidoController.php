@@ -8,19 +8,42 @@ use Illuminate\Support\Facades\Mail;
 use App\Models\Pedido;
 use App\Models\Carrito;
 use App\Models\Cupon;
+use App\Models\Pago;
 use App\Mail\PedidoConfirmado;
 
+// Controlador para la gestión de pedidos y compras
 class PedidoController extends Controller
 {
     // Procesar la compra (POST)
     public function procesarCompra(Request $request)
     {
+        // Debug: Log de los datos recibidos
+        \Log::info('Datos del formulario recibidos en PedidoController:', [
+            'nombre' => $request->nombre,
+            'email' => $request->email,
+            'telefono' => $request->telefono,
+            'direccion_completa' => $request->direccion_completa,
+            'fecha_entrega' => $request->fecha_entrega,
+            'metodo_pago' => $request->metodo_pago,
+        ]);
+
+        // Validar datos del formulario
+        $request->validate([
+            'metodo_pago' => 'required|in:tarjeta,yape,transferencia',
+            'nombre' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'telefono' => 'required|string|max:20',
+            'direccion_completa' => 'required|string|max:500',
+            'fecha_entrega' => 'required|date|after:today',
+        ]);
+
         // Validar y obtener datos
         $user = Auth::user();
         $carrito = Carrito::where('user_id', $user->id)->get();
         if ($carrito->isEmpty()) {
             return redirect()->route('carrito.index')->with('error', 'Tu carrito está vacío.');
         }
+        
         // Calcular totales y cupon
         $total = 0;
         foreach ($carrito as $item) {
@@ -35,32 +58,50 @@ class PedidoController extends Controller
             }
         }
         $totalFinal = $total + 15 - $descuento; // 15 es el envío
-        // Crear el pedido
+        
+        // Crear el pedido con los campos correctos de la base de datos
         $pedido = Pedido::create([
             'user_id' => $user->id,
-            'nombre' => $request->nombre,
-            'email' => $request->email,
-            'direccion' => $request->direccion_completa,
-            'telefono' => $request->telefono,
-            'fecha_entrega' => $request->fecha_entrega,
-            'metodo_pago' => $request->metodo_pago,
+            'estado' => 'pendiente',
             'total' => $totalFinal,
+            'metodo_pago' => $request->metodo_pago,
+            'fecha' => now(),
+            'fecha_entrega' => $request->fecha_entrega,
             'cupon_id' => $cupon ? $cupon->id : null,
+            'descuento' => $descuento,
+            // Campos correctos de la base de datos
+            'cliente_nombre' => $request->nombre,
+            'cliente_email' => $request->email,
+            'cliente_telefono' => $request->telefono,
+            'direccion_entrega' => $request->direccion_completa,
         ]);
-        // Guardar detalles del pedido
+        
+        // Guardar detalles del pedido y actualizar stock
         foreach ($carrito as $item) {
             $pedido->detalles()->create([
                 'libro_id' => $item->libro_id,
                 'cantidad' => $item->cantidad,
                 'precio_unitario' => $item->libro->precio,
             ]);
+            
+            // Actualizar stock del libro
+            $item->libro->decrement('stock', $item->cantidad);
         }
+        
+        // Crear pago
+        $pedido->pago()->create([
+            'tipo' => $request->metodo_pago,
+            'fecha' => now(),
+        ]);
+        
         // Limpiar carrito
         Carrito::where('user_id', $user->id)->delete();
+        
         // Enviar correo de confirmación solo si hay email
-        if ($pedido->email) {
-            Mail::to($pedido->email)->send(new PedidoConfirmado($pedido));
+        if ($pedido->cliente_email) {
+            Mail::to($pedido->cliente_email)->send(new PedidoConfirmado($pedido));
         }
+        
         // Redirigir a compra realizada
         return redirect()->route('compra.realizada', $pedido->id);
     }

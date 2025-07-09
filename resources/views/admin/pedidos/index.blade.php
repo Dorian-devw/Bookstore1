@@ -116,15 +116,6 @@
                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
             </div>
             
-            <!-- Estado de pago -->
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Estado de pago</label>
-                <select name="estado_pago" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    <option value="">Todos los pagos</option>
-                    <option value="completado" @if(request('estado_pago')=='completado') selected @endif>Pagado</option>
-                    <option value="pendiente" @if(request('estado_pago')=='pendiente') selected @endif>Pendiente</option>
-                </select>
-            </div>
             
             <!-- Botones de acción -->
             <div class="flex gap-2 items-end">

@@ -39,9 +39,11 @@
             <div>
                 <div class="mb-2"><span class="font-semibold text-gray-700">Nombre:</span> <span class="text-gray-900">{{ $pedido->user->name ?? '-' }}</span></div>
                 <div class="mb-2"><span class="font-semibold text-gray-700">Correo:</span> <span class="text-gray-900">{{ $pedido->user->email ?? '-' }}</span></div>
+                <div class="mb-2"><span class="font-semibold text-gray-700">Dirección de entrega:</span> <span class="text-gray-900">{{ $pedido->direccion_entrega ?? '-' }}</span></div>
             </div>
             <div>
                 <div class="mb-2"><span class="font-semibold text-gray-700">Fecha del pedido:</span> <span class="text-gray-900">{{ $pedido->fecha ? \Carbon\Carbon::parse($pedido->fecha)->format('d/m/Y H:i') : '-' }}</span></div>
+                <div class="mb-2"><span class="font-semibold text-gray-700">Fecha de entrega:</span> <span class="text-gray-900">{{ $pedido->fecha_entrega ? \Carbon\Carbon::parse($pedido->fecha_entrega)->format('d/m/Y') : '-' }}</span></div>
                 <div class="mb-2"><span class="font-semibold text-gray-700">Método de pago:</span> <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">{{ ucfirst($pedido->metodo_pago) }}</span></div>
             </div>
         </div>
@@ -73,14 +75,14 @@
             </table>
         </div>
         <div class="mt-6 text-right">
+            <div class="text-base text-gray-700 mb-1">Costo de envío: <span class="font-semibold">S/ 15.00</span></div>
             <div class="text-2xl font-bold text-blue-700">Total: S/ {{ number_format($pedido->total, 2) }}</div>
         </div>
     </div>
 
-    <!-- Estado y pago -->
+    <!-- Estado del pedido -->
     <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
-        <h2 class="text-xl font-semibold mb-4 text-gray-800">Estado y Pago</h2>
-        
+        <h2 class="text-xl font-semibold mb-4 text-gray-800">Estado del pedido</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div>
                 <div class="mb-3">
@@ -113,27 +115,7 @@
                         @endif
                     </div>
                 </div>
-                
-                <div class="mb-3">
-                    <span class="font-semibold text-gray-700">Estado del pago:</span>
-                    <div class="mt-1">
-                        @if($pedido->pago && $pedido->pago->estado == 'completado')
-                            <span class="inline-flex items-center px-3 py-1 rounded-full bg-green-100 text-green-800 font-semibold">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                                </svg>Pagado
-                            </span>
-                        @else
-                            <span class="inline-flex items-center px-3 py-1 rounded-full bg-yellow-100 text-yellow-800 font-semibold">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3" />
-                                </svg>Pendiente
-                            </span>
-                        @endif
-                    </div>
-                </div>
             </div>
-            
             <div>
                 <form action="{{ route('admin.pedidos.estado', $pedido->id) }}" method="POST" class="space-y-4">
                     @csrf
@@ -154,7 +136,6 @@
                 </form>
             </div>
         </div>
-        
         @if($pedido->estado != 'completado')
             <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                 <div class="flex items-center">

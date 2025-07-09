@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
+// Controlador para el envío de notificaciones de verificación de correo electrónico
 class EmailVerificationNotificationController extends Controller
 {
     /**

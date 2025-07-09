@@ -9,16 +9,16 @@ use App\Models\Pedido;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 
+// Controlador principal para la administración del sistema
 class AdminController extends Controller
 {
+    // Muestra el panel principal de administración, con resumen de datos clave
     public function index()
     {
         // KPIs
         $ventasMes = Pedido::whereMonth('fecha', now()->month)
             ->whereYear('fecha', now()->year)
-            ->whereHas('pago', function($q) {
-                $q->where('estado', 'completado');
-            })
+            ->where('estado', 'completado')
             ->sum('total');
         $usuarios = User::count();
         $pedidosPendientes = Pedido::where('estado', 'pendiente')->count();

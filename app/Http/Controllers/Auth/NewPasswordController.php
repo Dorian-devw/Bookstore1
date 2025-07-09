@@ -13,6 +13,7 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 
+// Controlador para la gestión de creación de nueva contraseña
 class NewPasswordController extends Controller
 {
     /**

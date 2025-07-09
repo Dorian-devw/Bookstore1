@@ -39,11 +39,11 @@
                 <img src="{{ asset('bookstore.png') }}" alt="The Flying Bookstore" class="h-14 w-auto border rounded-lg p-2 bg-white">
                 <span class="font-bold text-lg text-[#0A2342]">The Flying <span class="font-normal">bookstore</span></span>
             </div>
-            <div class="text-gray-600 text-sm max-w-xs">The Flying bookstore es un lugar donde la   s personas pueden encontrar sus libros favoritos de distintas categorías</div>
+            <div class="text-gray-600 text-sm max-w-xs">The Flying bookstore es un lugar donde las personas pueden encontrar sus libros favoritos de distintas categorías</div>
             <div class="flex gap-4 mt-2">
-                <a href="#" target="_blank"><img src="{{ asset('icons/facebook.svg') }}" alt="Facebook" class="w-6 h-6"></a>
-                <a href="#" target="_blank"><img src="{{ asset('icons/youtube.svg') }}" alt="YouTube" class="w-6 h-6"></a>
-                <a href="#" target="_blank"><img src="{{ asset('icons/instagram.svg') }}" alt="Instagram" class="w-6 h-6"></a>
+                <a href="https://www.facebook.com/profile.php?id=61578052504936" target="_blank" rel="noopener noreferrer"><img src="{{ asset('icons/facebook.svg') }}" alt="Facebook" class="w-6 h-6"></a>
+                <a href="https://www.youtube.com/@the_flying_bookstore" target="_blank" rel="noopener noreferrer"><img src="{{ asset('icons/youtube.svg') }}" alt="YouTube" class="w-6 h-6"></a>
+                <a href="https://www.instagram.com/theflyingbookstore/" target="_blank" rel="noopener noreferrer"><img src="{{ asset('icons/instagram.svg') }}" alt="Instagram" class="w-6 h-6"></a>
             </div>
         </div>
         <!-- Centro: contacto -->
